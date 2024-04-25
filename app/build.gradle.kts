@@ -60,6 +60,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     // ArcGIS Map Kotlin SDK dependencies
     implementation("com.esri:arcgis-maps-kotlin:200.4.0")
+    implementation("com.esri:arcgis-maps-kotlin-toolkit-authentication")
+
     // Toolkit dependencies
     implementation(platform("com.esri:arcgis-maps-kotlin-toolkit-bom:200.4.0"))
     implementation("com.esri:arcgis-maps-kotlin-toolkit-geoview-compose")
