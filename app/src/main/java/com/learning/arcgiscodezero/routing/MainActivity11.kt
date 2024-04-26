@@ -184,7 +184,7 @@ class MainActivity11: ComponentActivity() {
 
         currentJob.value?.cancel()
         // retrieve the tapped map point from the SingleTapConfirmedEvent
-        val point: Point = event.mapPoint ?: return //showMessage(context, "No map point retrieved from tap.")
+        val point: Point = event.mapPoint ?: return showMessage(context, "No map point retrieved from tap.")
         val stop = Stop(point)
 
         when (routeStops.size) {
