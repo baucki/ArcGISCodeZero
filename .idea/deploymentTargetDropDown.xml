@@ -18,6 +18,9 @@
           <timeTargetWasSelectedWithDropDown value="2024-04-26T11:21:23.078212100Z" />
         </State>
       </entry>
+      <entry key="MainActivity2">
+        <State />
+      </entry>
       <entry key="MainActivity20">
         <State>
           <targetSelectedWithDropDown>
@@ -35,20 +38,10 @@
         </State>
       </entry>
       <entry key="MainActivity21">
-        <State>
-          <runningDeviceTargetSelectedWithDropDown>
-            <Target>
-              <type value="RUNNING_DEVICE_TARGET" />
-              <deviceKey>
-                <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\Ivan\.android\avd\Pixel_3a_API_34_extension_level_7_x86_64_copy3.avd" />
-                </Key>
-              </deviceKey>
-            </Target>
-          </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-26T12:12:19.680175200Z" />
-        </State>
+        <State />
+      </entry>
+      <entry key="MainActivity22">
+        <State />
       </entry>
       <entry key="app">
         <State>
