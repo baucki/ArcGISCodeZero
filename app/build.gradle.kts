@@ -61,6 +61,7 @@ dependencies {
     // ArcGIS Map Kotlin SDK dependencies
     implementation("com.esri:arcgis-maps-kotlin:200.4.0")
     implementation("com.esri:arcgis-maps-kotlin-toolkit-authentication")
+    implementation("com.esri.arcgisruntime:arcgis-android:100.0.0")
 
     // Toolkit dependencies
     implementation(platform("com.esri:arcgis-maps-kotlin-toolkit-bom:200.4.0"))
