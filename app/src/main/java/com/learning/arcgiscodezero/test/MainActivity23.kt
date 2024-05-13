@@ -1,6 +1,7 @@
 package com.learning.arcgiscodezero.test
 
 import android.content.Context
+import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -29,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
@@ -42,6 +44,7 @@ import com.arcgismaps.mapping.PortalItem
 import com.arcgismaps.mapping.Viewpoint
 import com.arcgismaps.mapping.layers.FeatureLayer
 import com.arcgismaps.mapping.symbology.HorizontalAlignment
+import com.arcgismaps.mapping.symbology.PictureMarkerSymbol
 import com.arcgismaps.mapping.symbology.SimpleMarkerSymbol
 import com.arcgismaps.mapping.symbology.SimpleMarkerSymbolStyle
 import com.arcgismaps.mapping.symbology.TextSymbol
@@ -137,7 +140,7 @@ class MainActivity23: ComponentActivity() {
             horizontalAlignment = HorizontalAlignment.Center,
             verticalAlignment = VerticalAlignment.Bottom
         ).apply {
-            offsetY = 8f
+            offsetY = -24f
             haloColor = Color.white
             haloWidth = 2f
         }
@@ -148,16 +151,23 @@ class MainActivity23: ComponentActivity() {
     }
 
     private fun createMarkerGraphic(geocodeResult: GeocodeResult): Graphic {
-        val simpleMarkerSymbol = SimpleMarkerSymbol(
-            style = SimpleMarkerSymbolStyle.Square,
-            color = Color.red,
-            size = 12.0f
-        )
-        return Graphic(
-            geometry = geocodeResult.displayLocation,
-            attributes = geocodeResult.attributes,
-            symbol = simpleMarkerSymbol
-        )
+        val endDrawable =
+            ContextCompat.getDrawable(this, R.drawable.location_pin) as BitmapDrawable
+
+        endDrawable.let {
+            val pinDestinationSymbol =
+                PictureMarkerSymbol.createWithImage(endDrawable).apply {
+                    // make the graphic smaller
+                    width = 24f
+                    height = 36f
+                    offsetY = 20f
+                }
+            return Graphic(
+                geometry = geocodeResult.displayLocation,
+                attributes = geocodeResult.attributes,
+                symbol = pinDestinationSymbol
+            )
+        }
     }
 
     private fun handleGeocodeResults(
