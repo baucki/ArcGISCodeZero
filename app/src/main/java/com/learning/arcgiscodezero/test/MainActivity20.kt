@@ -90,6 +90,19 @@ class MainActivity20: ComponentActivity() {
         Point(x = 18.59634, y = 42.37386) // plava spilja
     )
 
+    private val mneItaRoutePoints = listOf(
+        Point(18.5500, 42.3833),
+        Point(16.3333, 42.1917),
+        Point(15.9833, 42.4528),
+        Point(14.4083, 43.6250),
+        Point(13.8611, 43.9667),
+        Point(13.2361, 44.3056),
+        Point(13.1944, 44.3833),
+        Point(13.1000, 44.3694),
+        Point(12.4000, 44.5000),
+        Point(12.3528, 44.5000),
+    )
+
     private val blueOutlineSymbol = SimpleLineSymbol(SimpleLineSymbolStyle.Solid, Color.fromRgba(0, 0, 255), 2f)
     private fun createPointGraphic(latitude: Double, longitude: Double, outlineSymbol: SimpleLineSymbol): Graphic {
         // Point geometry
@@ -155,6 +168,7 @@ class MainActivity20: ComponentActivity() {
         graphicsOverlay.graphics.add(createPointGraphic(42.39517, 18.55822, blueOutlineSymbol))
         graphicsOverlay.graphics.add(createPointGraphic(42.37386, 18.59634, blueOutlineSymbol))
         graphicsOverlay.graphics.add(createPolylineGraphic(routePoints))
+        graphicsOverlay.graphics.add(createPolylineGraphic(mneItaRoutePoints))
 
         // create a list of graphics overlays used by the MapView
         val graphicsOverlays = remember { listOf(graphicsOverlay) }
