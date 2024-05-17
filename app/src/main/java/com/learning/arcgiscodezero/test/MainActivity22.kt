@@ -18,12 +18,8 @@ import androidx.compose.ui.res.stringResource
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.mapping.ArcGISMap
-import com.arcgismaps.mapping.BasemapStyle
 import com.arcgismaps.mapping.PortalItem
-import com.arcgismaps.mapping.Viewpoint
-import com.arcgismaps.mapping.view.GraphicsOverlay
 import com.arcgismaps.portal.Portal
-import com.arcgismaps.tasks.geocode.LocatorTask
 import com.arcgismaps.toolkit.geoviewcompose.MapView
 import com.learning.arcgiscodezero.R
 import com.learning.arcgiscodezero.ui.theme.ArcGISCodeZeroTheme

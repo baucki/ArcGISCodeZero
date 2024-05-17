@@ -31,34 +31,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.Color
-import com.arcgismaps.data.Feature
-import com.arcgismaps.data.ServiceFeatureTable
 import com.arcgismaps.geometry.SpatialReference
 import com.arcgismaps.mapping.ArcGISMap
 import com.arcgismaps.mapping.BasemapStyle
-import com.arcgismaps.mapping.PortalItem
 import com.arcgismaps.mapping.Viewpoint
-import com.arcgismaps.mapping.layers.FeatureLayer
 import com.arcgismaps.mapping.symbology.HorizontalAlignment
 import com.arcgismaps.mapping.symbology.PictureMarkerSymbol
-import com.arcgismaps.mapping.symbology.SimpleMarkerSymbol
-import com.arcgismaps.mapping.symbology.SimpleMarkerSymbolStyle
 import com.arcgismaps.mapping.symbology.TextSymbol
 import com.arcgismaps.mapping.symbology.VerticalAlignment
 import com.arcgismaps.mapping.view.Graphic
 import com.arcgismaps.mapping.view.GraphicsOverlay
-import com.arcgismaps.portal.Portal
 import com.arcgismaps.tasks.geocode.GeocodeParameters
 import com.arcgismaps.tasks.geocode.GeocodeResult
 import com.arcgismaps.tasks.geocode.LocatorTask
 import com.arcgismaps.toolkit.geoviewcompose.MapView
 import com.arcgismaps.toolkit.geoviewcompose.MapViewProxy
-import com.esri.arcgisruntime.geometry.Point
-import com.esri.arcgisruntime.loadable.LoadStatus
 import com.learning.arcgiscodezero.R
 import com.learning.arcgiscodezero.ui.theme.ArcGISCodeZeroTheme
 import kotlinx.coroutines.CoroutineScope
@@ -86,9 +76,9 @@ class MainActivity23: ComponentActivity() {
 
         return ArcGISMap(BasemapStyle.ArcGISImagery).apply {
             initialViewpoint = Viewpoint(
-                longitude = 18.7777,
+                longitude = 18.7676,
                 latitude = 42.4242,
-                scale = 100000.0
+                scale = 20000.0
             )
         }
 

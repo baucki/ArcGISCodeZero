@@ -34,17 +34,12 @@ import androidx.core.content.ContextCompat
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.Color
-import com.arcgismaps.data.ServiceFeatureTable
-import com.arcgismaps.geometry.Point
 import com.arcgismaps.geometry.SpatialReference
 import com.arcgismaps.mapping.ArcGISMap
 import com.arcgismaps.mapping.BasemapStyle
 import com.arcgismaps.mapping.Viewpoint
-import com.arcgismaps.mapping.layers.FeatureLayer
 import com.arcgismaps.mapping.symbology.HorizontalAlignment
 import com.arcgismaps.mapping.symbology.PictureMarkerSymbol
-import com.arcgismaps.mapping.symbology.SimpleMarkerSymbol
-import com.arcgismaps.mapping.symbology.SimpleMarkerSymbolStyle
 import com.arcgismaps.mapping.symbology.TextSymbol
 import com.arcgismaps.mapping.symbology.VerticalAlignment
 import com.arcgismaps.mapping.view.Graphic

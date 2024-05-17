@@ -47,6 +47,9 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+//    packagingOptions {
+//        exclude("META-INF/DEPENDENCIES")
+//    }
 }
 
 dependencies {
@@ -58,10 +61,13 @@ dependencies {
     // Jetpack Compose dependencies
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
+//    implementation("com.google.android.material:material:1.5.0")
+//    implementation(libs.androidx.recyclerview)
+
     // ArcGIS Map Kotlin SDK dependencies
     implementation("com.esri:arcgis-maps-kotlin:200.4.0")
     implementation("com.esri:arcgis-maps-kotlin-toolkit-authentication")
-    implementation("com.esri.arcgisruntime:arcgis-android:100.0.0")
+//    implementation("com.esri.arcgisruntime:arcgis-android:100.15.0")
 
     // Toolkit dependencies
     implementation(platform("com.esri:arcgis-maps-kotlin-toolkit-bom:200.4.0"))
