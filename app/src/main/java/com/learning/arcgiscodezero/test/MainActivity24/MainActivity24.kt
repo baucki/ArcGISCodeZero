@@ -33,7 +33,7 @@ class MainActivity24 : ComponentActivity() {
     private lateinit var mapView: MapView
     private lateinit var featureAttributesAdapter: FeatureAttributesAdapter
 
-    private val serviceFeatureTable = ServiceFeatureTable("192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer/0")
+    private val serviceFeatureTable = ServiceFeatureTable("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer/0")
     private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
 
     override fun onCreate(savedInstanceState: Bundle?) {
