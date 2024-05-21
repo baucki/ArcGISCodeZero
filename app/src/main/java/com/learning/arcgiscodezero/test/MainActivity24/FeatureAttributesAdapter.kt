@@ -25,7 +25,8 @@ class FeatureAttributesAdapter(private var featureAttributesList: List<Map<Strin
         val attributeText = StringBuilder()
 
         for ((key, value) in featureAttributes) {
-            attributeText.append("$key: $value\n")
+            val displayValue = value?.toString() ?: "---"
+            attributeText.append("$key: $displayValue\n")
         }
 
         holder.attributeTextView.text = attributeText.toString()

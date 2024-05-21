@@ -38,18 +38,16 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/DEPENDENCIES"
         }
     }
-//    packagingOptions {
-//        exclude("META-INF/DEPENDENCIES")
-//    }
 }
 
 dependencies {
@@ -61,8 +59,8 @@ dependencies {
     // Jetpack Compose dependencies
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
-//    implementation("com.google.android.material:material:1.5.0")
-//    implementation(libs.androidx.recyclerview)
+    implementation("com.google.android.material:material:1.5.0")
+    implementation(libs.androidx.recyclerview)
 
     // ArcGIS Map Kotlin SDK dependencies
     implementation("com.esri:arcgis-maps-kotlin:200.4.0")

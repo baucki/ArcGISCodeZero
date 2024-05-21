@@ -1,114 +1,143 @@
 package com.learning.arcgiscodezero.test.MainActivity24
 
 import android.os.Bundle
-import android.view.MotionEvent
+import android.view.LayoutInflater
 import android.view.View
 import androidx.activity.ComponentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.esri.arcgisruntime.data.Feature
-import com.esri.arcgisruntime.data.ServiceFeatureTable
-import com.esri.arcgisruntime.layers.FeatureLayer
-import com.esri.arcgisruntime.mapping.ArcGISMap
-import com.esri.arcgisruntime.mapping.Basemap
-import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener
-import com.esri.arcgisruntime.mapping.view.MapView
+import com.arcgismaps.ApiKey
+import com.arcgismaps.ArcGISEnvironment
+import com.arcgismaps.Color
+import com.arcgismaps.data.Feature
+import com.arcgismaps.data.ServiceFeatureTable
+import com.arcgismaps.geometry.Point
+import com.arcgismaps.geometry.SpatialReference
+import com.arcgismaps.mapping.ArcGISMap
+import com.arcgismaps.mapping.BasemapStyle
+import com.arcgismaps.mapping.Viewpoint
+import com.arcgismaps.mapping.layers.FeatureLayer
+import com.arcgismaps.mapping.view.MapView
+import com.arcgismaps.mapping.view.ScreenCoordinate
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.learning.arcgiscodezero.R
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 class MainActivity24 : ComponentActivity() {
     private lateinit var mapView: MapView
-    private lateinit var featureLayer: FeatureLayer
-    private lateinit var recyclerView: RecyclerView
     private lateinit var featureAttributesAdapter: FeatureAttributesAdapter
+
+    private val serviceFeatureTable = ServiceFeatureTable("192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer/0")
+    private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         mapView = findViewById(R.id.mapView)
-        recyclerView = findViewById(R.id.recyclerView)
         featureAttributesAdapter = FeatureAttributesAdapter(emptyList())
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = featureAttributesAdapter
 
+        ArcGISEnvironment.apiKey = ApiKey.create("AAPK1e43bdcf9fa04fa0a729106fdd7a97fbNbpa3VVhaR5eKzfmkAFb0Uy_soNrGAjpslTJLcWQiNV6T3YGoRy8Sfa7a5ZXkBcj")
+        lifecycle.addObserver(mapView)
 
-        // Create a map with the Basemap type
-        val map = ArcGISMap(Basemap.createStreets())
+        val map = ArcGISMap(BasemapStyle.ArcGISStreets).apply {
+            operationalLayers.add(featureLayer)
+            featureLayer.isVisible = true
+        }
 
-        // Create the feature layer using a URL to the feature service
-        val serviceFeatureTable = ServiceFeatureTable("https://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer/0")
-        featureLayer = FeatureLayer(serviceFeatureTable)
+        mapView.apply {
+            mapView.map = map
+            setViewpoint(
+                Viewpoint(
+                    Point(
+                        x = 20.4489,
+                        y = 44.8066,
+                        spatialReference = SpatialReference.wgs84()
+                    ),
+                7e4)
+            )
+            selectionProperties.color = Color.red
 
-        // Add the feature layer to the map
-        map.operationalLayers.add(featureLayer)
-
-        // Set the map to the map view
-        mapView.map = map
-        mapView.isAttributionTextVisible = true // Add this line to enable gestures
-
-
-        // Set an on-touch listener for the map view to identify features
-        mapView.onTouchListener = object : DefaultMapViewOnTouchListener(this, mapView) {
-            override fun onSingleTapConfirmed(motionEvent: MotionEvent): Boolean {
-                identifyFeature(motionEvent.x, motionEvent.y)
-                return super.onSingleTapConfirmed(motionEvent)
+            lifecycleScope.launch {
+                onSingleTapConfirmed.collect { tapEvent ->
+                    val screenCoordinate = tapEvent.screenCoordinate
+                    identifyFeature(screenCoordinate)
+                }
             }
         }
     }
 
     private fun displayFeatureAttributes(featureAttributes: Map<String, Any?>) {
         runOnUiThread {
+            val bottomSheetView = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_attributes, null)
+            val bottomSheetDialog = BottomSheetDialog(this)
+            bottomSheetDialog.setContentView(bottomSheetView)
+
+            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView.parent as View)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+            val recyclerView = bottomSheetView.findViewById<RecyclerView>(R.id.recyclerView)
+            recyclerView.layoutManager = LinearLayoutManager(this)
             featureAttributesAdapter.updateData(listOf(featureAttributes))
-            recyclerView.visibility = View.VISIBLE
+            recyclerView.adapter = featureAttributesAdapter
+
+            bottomSheetDialog.show()
         }
     }
+    private suspend fun identifyFeature(screenCoordinate: ScreenCoordinate) {
+        featureLayer.clearSelection()
+        val identifyLayerResult =
+            mapView.identifyLayer(featureLayer, screenCoordinate, 5.0, false, 1)
 
-    private fun identifyFeature(x: Float, y: Float) {
-        val screenPoint = android.graphics.Point(x.toInt(), y.toInt())
-        val identifyLayerResultFuture = mapView.identifyLayerAsync(featureLayer, screenPoint, 5.0, false, 1)
-
-        identifyLayerResultFuture.addDoneListener {
-            try {
-                val identifyLayerResult = identifyLayerResultFuture.get()
-                val geoElements = identifyLayerResult.elements
+        identifyLayerResult.apply {
+            onSuccess { identifyLayerResult ->
+                val geoElements = identifyLayerResult.geoElements
 
                 if (!geoElements.isEmpty() && geoElements[0] is Feature) {
                     val identifiedFeature = geoElements[0] as Feature
                     val featureAttributes = identifiedFeature.attributes
-                    displayFeatureAttributes(featureAttributes)
-//                    val message = "Feature ID: ${featureAttributes["objectid"]}"
-//                    showSnackbar(message)
-//                    val featureTable = featureLayer.featureTable
-//                    val fieldsInfo = featureTable.fields.map { "${it.name} - ${it.alias ?: "No Alias"}" }
-//                    val fieldsInfoString = fieldsInfo.joinToString(separator = "\n")
-//                    showSnackbar("Feature Attributes:\n$fieldsInfoString")
-//                    Log.d("random tag", fieldsInfoString)
-                } else {
+                    val aliasAttributes = mutableMapOf<String, Any?>()
+
+                    val featureTable = identifiedFeature.featureTable as ServiceFeatureTable
+                    val fields = featureTable.fields
+
+                    for (field in fields) {
+                        if (field.alias == "objectid" || field.alias == "globalid") continue
+                        val alias = field.alias
+                        val attributeName = field.name
+                        val attributeValue = featureAttributes[attributeName]
+                        aliasAttributes[alias] = attributeValue
+                        if (attributeValue.toString().contains("java.util.GregorianCalendar")) {
+                            val dateString = attributeValue.toString()
+
+                            val startIndex = dateString.indexOf("time=") + "time=".length
+                            val endIndex = dateString.indexOf(",", startIndex)
+                            val timeInMillis = dateString.substring(startIndex, endIndex).toLong()
+
+                            val calendar = Calendar.getInstance()
+                            calendar.timeInMillis = timeInMillis
+
+                            val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+                            val formattedDate = sdf.format(calendar.time)
+                            aliasAttributes[alias] = formattedDate
+                        }
+                    }
+                    featureLayer.selectFeature(identifiedFeature)
+                    displayFeatureAttributes(aliasAttributes)
+                }
+                onFailure {
                     showSnackbar("No feature identified.")
                 }
-            } catch (e: Exception) {
-                showSnackbar("Error identifying feature: ${e.message}")
             }
         }
     }
-
     private fun showSnackbar(message: String) {
         Snackbar.make(mapView, message, Snackbar.LENGTH_SHORT).show()
-    }
-
-    override fun onPause() {
-        mapView.pause()
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        mapView.resume()
-    }
-
-    override fun onDestroy() {
-        mapView.dispose()
-        super.onDestroy()
     }
 }

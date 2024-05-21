@@ -5,19 +5,10 @@
     android:layout_height="match_parent">
 
     <!-- MapView for displaying the map -->
-    <com.esri.arcgisruntime.mapping.view.MapView
+<!--    <com.esri.arcgisruntime.mapping.view.MapView-->
+    <com.arcgismaps.mapping.view.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
-    <!-- RecyclerView for displaying feature attributes -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:background="#AAFFFFFF"
-        android:visibility="gone"
-        android:padding="16dp" />
 
 </RelativeLayout>
