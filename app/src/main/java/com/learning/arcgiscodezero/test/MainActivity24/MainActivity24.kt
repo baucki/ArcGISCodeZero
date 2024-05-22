@@ -3,6 +3,7 @@ package com.learning.arcgiscodezero.test.MainActivity24
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ToggleButton
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +33,7 @@ import java.util.Locale
 class MainActivity24 : ComponentActivity() {
     private lateinit var mapView: MapView
     private lateinit var featureAttributesAdapter: FeatureAttributesAdapter
+    private var isAddingFeature = false
 
     private val serviceFeatureTable = ServiceFeatureTable("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer/0")
     private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
@@ -41,6 +43,8 @@ class MainActivity24 : ComponentActivity() {
         setContentView(R.layout.activity_main)
 
         mapView = findViewById(R.id.mapView)
+        val toggleButton = findViewById<ToggleButton>(R.id.toggleButton)
+
         featureAttributesAdapter = FeatureAttributesAdapter(emptyList())
 
         ArcGISEnvironment.apiKey = ApiKey.create("AAPK1e43bdcf9fa04fa0a729106fdd7a97fbNbpa3VVhaR5eKzfmkAFb0Uy_soNrGAjpslTJLcWQiNV6T3YGoRy8Sfa7a5ZXkBcj")
@@ -70,6 +74,9 @@ class MainActivity24 : ComponentActivity() {
                     identifyFeature(screenCoordinate)
                 }
             }
+        }
+        toggleButton.setOnCheckedChangeListener { _, isChecked ->
+            isAddingFeature = isChecked
         }
     }
 
@@ -130,9 +137,63 @@ class MainActivity24 : ComponentActivity() {
                     }
                     featureLayer.selectFeature(identifiedFeature)
                     displayFeatureAttributes(aliasAttributes)
-                }
-                onFailure {
-                    showSnackbar("No feature identified.")
+                } else {
+                    if (isAddingFeature) {
+                        lifecycleScope.launch {
+
+                        }
+                        val mapPoint = mapView.screenToLocation(screenCoordinate)
+                        val attributes = mutableMapOf<String, Any?>(
+                            "vrsta" to null,
+                            "fitopatoloske_promene" to null,
+                            "entomoloske_promene" to null,
+                            "slomljene_grane" to null,
+                            "suve_grane" to null,
+                            "suhovrhost" to null,
+                            "isecene_debele_grane" to null,
+                            "premaz" to null,
+                            "ocena_kondicije" to null,
+                            "ocena_dekorativnosti" to null,
+                            "procena_starosti" to null,
+                            "vreme_sadnje" to null,
+                            "rasadnik" to null,
+                            "cena_sadnice" to null,
+                            "visina_stabla" to null,
+                            "visina_debla" to null,
+                            "prsni_precnik" to null,
+                            "sirina_krosnje" to null,
+                            "fitopatoloska_oboljenja" to null,
+                            "entomoloska_oboljenja" to null,
+                            "ottrulez_debla_izrazenost" to null,
+                            "ottrulez_debla_velicina" to null,
+                            "ottrulez_grana_izrazenost" to null,
+                            "ottrulez_grana_velicina" to null,
+                            "napomena" to null,
+                            "pripada_drvoredu" to null,
+                            "tip_kragne" to null,
+                            "globalid" to null,
+                            "ostalo" to null,
+                            "list" to null,
+                            "stablo" to null,
+                            "koren" to null,
+                            "grana" to null,
+                            "krosnja" to null
+                        )
+
+                        val feature = serviceFeatureTable.createFeature(attributes, mapPoint)
+                        serviceFeatureTable.addFeature(feature).apply {
+                            onSuccess {
+                                println("radi")
+                                showSnackbar("Feature added successfully.")
+                            }
+                            onFailure {
+                                println(it.message)
+                                showSnackbar("Failed to add feature: ${it.message}")
+                            }
+                        }
+                    } else {
+                        showSnackbar("No feature identified.")
+                    }
                 }
             }
         }
