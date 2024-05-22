@@ -183,7 +183,7 @@ class MainActivity24 : ComponentActivity() {
                         val feature = serviceFeatureTable.createFeature(attributes, mapPoint)
                         serviceFeatureTable.addFeature(feature).apply {
                             onSuccess {
-                                println("radi")
+                                serviceFeatureTable.applyEdits()
                                 showSnackbar("Feature added successfully.")
                             }
                             onFailure {
