@@ -1,10 +1,14 @@
 package com.learning.arcgiscodezero.test.MainActivity24
 
+import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Button
 import android.widget.ToggleButton
-import androidx.activity.ComponentActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,14 +34,20 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class MainActivity24 : ComponentActivity() {
+class MainActivity24 : AppCompatActivity() {
+
     private lateinit var mapView: MapView
     private lateinit var featureAttributesAdapter: FeatureAttributesAdapter
+
+    private lateinit var editButton: Button
+    private lateinit var deleteButton: Button
+
     private var isAddingFeature = false
 
     private val serviceFeatureTable = ServiceFeatureTable("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer/0")
     private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -80,11 +90,32 @@ class MainActivity24 : ComponentActivity() {
         }
     }
 
+    private fun initListeners() {
+        editButton.findViewById<Button>(R.id.editButton).setOnClickListener {
+//            replaceFragment(EditFragment())
+            startActivity(Intent(this, EditFeatureActivity::class.java))
+        }
+    }
+
+    private fun replaceFragment(fragment: Fragment) {
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.fragment_container, fragment)
+        fragmentTransaction.addToBackStack(null) // Optional: Add to back stack to allow "back" navigation
+        fragmentTransaction.commit()
+    }
+
     private fun displayFeatureAttributes(featureAttributes: Map<String, Any?>) {
         runOnUiThread {
             val bottomSheetView = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_attributes, null)
             val bottomSheetDialog = BottomSheetDialog(this)
             bottomSheetDialog.setContentView(bottomSheetView)
+
+            // Initialize buttons here
+            editButton = bottomSheetView.findViewById(R.id.editButton)
+            deleteButton = bottomSheetView.findViewById(R.id.deleteButton)
+
+            initListeners()
 
             val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView.parent as View)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED

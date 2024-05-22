@@ -54,6 +54,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.fragment:fragment-ktx:1.5.5")
     // Jetpack Compose Bill of Materials
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
     // Jetpack Compose dependencies
@@ -70,4 +71,10 @@ dependencies {
     // Toolkit dependencies
     implementation(platform("com.esri:arcgis-maps-kotlin-toolkit-bom:200.4.0"))
     implementation("com.esri:arcgis-maps-kotlin-toolkit-geoview-compose")
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 }

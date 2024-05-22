@@ -4,4 +4,6 @@
     <string name="oauth_client_id">5kEVj61dCKqpU8Pv</string>
     <string name="oauth_redirect_uri_scheme">authenticate-with-oauth</string>
     <string name="oauth_redirect_uri_host">auth</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_edit">EditActivity</string>
 </resources>
