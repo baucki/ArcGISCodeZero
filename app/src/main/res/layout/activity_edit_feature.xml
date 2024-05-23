@@ -1,221 +1,182 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center"
-        android:paddingTop="16dp">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
-        <EditText
-            android:id="@+id/editText_tip"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tip" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:padding="16dp">
 
-        <EditText
-            android:id="@+id/editText_vrsta_drveta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Vrsta drveta" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxStrokeColor="#CCCCCC"
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp">
 
-        <EditText
-            android:id="@+id/editText_fitopatoloske_promene"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Fitopataloške promene" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editText_tipp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tip"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:drawablePadding="12dp"/>
+                <!--                android:drawableStart="@drawable/ic_filter"-->
 
-        <EditText
-            android:id="@+id/editText_entomoloske_promene"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Entomološke promene" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/editText_slomljene_grane"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Slomljene grane" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxStrokeColor="#CCCCCC"
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp">
 
-        <EditText
-            android:id="@+id/editText_suve_grane"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Suve grane u krošnji" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editText_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Number"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:inputType="number"
+                    android:drawablePadding="12dp" />
 
-        <EditText
-            android:id="@+id/editText_suhovrhost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Suhovrhost" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/editText_isecene_debele_grane"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Isečene debele grane" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxStrokeColor="#CCCCCC"
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp">
 
-        <EditText
-            android:id="@+id/editText_premaz"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Premaz" />
+                <com.learning.arcgiscodezero.test.MainActivity24.CustomTextInputEditText
+                    android:id="@+id/editText_tippp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tip"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:drawablePadding="12dp"/>
 
-        <EditText
-            android:id="@+id/editText_ocena_kondicije"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Ocena kondicije" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/editText_ocena_dekorativnosti"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Ocena dekorativnosti" />
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxStrokeColor="#CCCCCC"
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp">
 
-        <EditText
-            android:id="@+id/editText_procena_starosti"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Procena starosti" />
+                <com.learning.arcgiscodezero.test.MainActivity24.CustomDatePickerEditText
+                    android:id="@+id/datePickerEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Pick a date"
+                    android:inputType="none" />
 
-        <EditText
-            android:id="@+id/editText_vreme_sadnje"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Vreme sadnje" />
-
-        <EditText
-            android:id="@+id/editText_rasadnik"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Rasadnik" />
-
-        <EditText
-            android:id="@+id/editText_cena_sadnice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Cena sadnice" />
-
-        <EditText
-            android:id="@+id/editText_visina_stabla"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Visina stabla (m)" />
-
-        <EditText
-            android:id="@+id/editText_visina_debla"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Visina debla (m)" />
-
-        <EditText
-            android:id="@+id/editText_prsni_precnik"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Prsni prečnik (cm)" />
-
-        <EditText
-            android:id="@+id/editText_sirina_krosnje"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Širina krošnje (m)" />
-
-        <EditText
-            android:id="@+id/editText_fitopatoloska_oboljenja"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Fitopatološka oboljenja" />
-
-        <EditText
-            android:id="@+id/editText_entomoloska_oboljenja"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Entomološka oboljenja" />
-
-        <EditText
-            android:id="@+id/editText_ottrulez_debla_izrazenost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Otvorena trulež debla izraženost" />
-
-        <EditText
-            android:id="@+id/editText_ottrulez_debla_velicina"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Otvorena trulež debla veličina" />
-
-        <EditText
-            android:id="@+id/editText_ottrulez_grana_izrazenost"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Otvorena trulež grana izraženost" />
-
-        <EditText
-            android:id="@+id/editText_ottrulez_grana_velicina"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Otvorena trulež grana veličina" />
-
-        <EditText
-            android:id="@+id/editText_napomena"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Napomena" />
-
-        <EditText
-            android:id="@+id/editText_pripada_drvoredu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Pripadnost drvoredu" />
-
-        <EditText
-            android:id="@+id/editText_tip_kragne"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Tip kragne" />
-
-        <EditText
-            android:id="@+id/editText_ostalo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Ostali detalji" />
-
-        <EditText
-            android:id="@+id/editText_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="List" />
-
-        <EditText
-            android:id="@+id/editText_stablo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Stablo" />
-        <EditText
-            android:id="@+id/editText_koren"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Koren" />
-        <EditText
-            android:id="@+id/editText_grana"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Grana" />
-        <EditText
-            android:id="@+id/editText_krosnja"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Krosnja" />
-
-    </LinearLayout>
-
-</ScrollView>
+            </com.google.android.material.textfield.TextInputLayout>
 
 
 
+            <!--    Tip ima listu "Listopadno drvo" i "Cetinarsko drvo"    -->
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxStrokeColor="#CCCCCC"
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp">
+
+                <com.learning.arcgiscodezero.test.MainActivity24.CustomTextInputEditText
+                    android:id="@+id/editText_tip"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Tip"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:drawablePadding="12dp"/>
+                <!--                android:drawableStart="@drawable/ic_filter"-->
+
+            </com.google.android.material.textfield.TextInputLayout>
 
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:boxStrokeColor="#CCCCCC"
+                app:boxBackgroundColor="#FFFFFF"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="8dp"
+                app:boxCornerRadiusTopEnd="8dp"
+                app:boxCornerRadiusBottomStart="8dp"
+                app:boxCornerRadiusBottomEnd="8dp">
+
+                <com.learning.arcgiscodezero.test.MainActivity24.CustomTextInputEditText
+                    android:id="@+id/editText_vrsta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Vrsta drveta"
+                    android:padding="16dp"
+                    android:textSize="16sp"
+                    android:drawablePadding="12dp"/>
+                <!--                android:drawableStart="@drawable/ic_filter"-->
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button Text"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:textColor="@android:color/white"
+        android:background="@drawable/button_background"/>
+<!--        android:textAllCaps="false"/>-->
+
+</LinearLayout>

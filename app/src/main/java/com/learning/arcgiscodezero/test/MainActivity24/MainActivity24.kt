@@ -17,6 +17,7 @@ import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.Color
 import com.arcgismaps.data.Feature
 import com.arcgismaps.data.ServiceFeatureTable
+import com.arcgismaps.geometry.Envelope
 import com.arcgismaps.geometry.Point
 import com.arcgismaps.geometry.SpatialReference
 import com.arcgismaps.mapping.ArcGISMap
@@ -45,6 +46,7 @@ class MainActivity24 : AppCompatActivity() {
     private var isAddingFeature = false
 
     private val serviceFeatureTable = ServiceFeatureTable("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer/0")
+//    private val serviceFeatureTable = ServiceFeatureTable("https://services1.arcgis.com/4yjifSiIG17X0gW4/arcgis/rest/services/GDP_per_capita_1960_2016/FeatureServer/0")
     private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
 
     @SuppressLint("MissingInflatedId")
@@ -67,6 +69,7 @@ class MainActivity24 : AppCompatActivity() {
 
         mapView.apply {
             mapView.map = map
+            // Belgrade Viewpoint
             setViewpoint(
                 Viewpoint(
                     Point(
@@ -76,6 +79,17 @@ class MainActivity24 : AppCompatActivity() {
                     ),
                 7e4)
             )
+            // USA Viewpoint
+//            setViewpoint(
+//                Viewpoint(
+//                    Envelope(
+//                        -1131596.019761,
+//                        3893114.069099,
+//                        3926705.982140,
+//                        7977912.461790
+//                    )
+//                )
+//            )
             selectionProperties.color = Color.red
 
             lifecycleScope.launch {
@@ -92,17 +106,8 @@ class MainActivity24 : AppCompatActivity() {
 
     private fun initListeners() {
         editButton.findViewById<Button>(R.id.editButton).setOnClickListener {
-//            replaceFragment(EditFragment())
             startActivity(Intent(this, EditFeatureActivity::class.java))
         }
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.fragment_container, fragment)
-        fragmentTransaction.addToBackStack(null) // Optional: Add to back stack to allow "back" navigation
-        fragmentTransaction.commit()
     }
 
     private fun displayFeatureAttributes(featureAttributes: Map<String, Any?>) {
@@ -111,7 +116,6 @@ class MainActivity24 : AppCompatActivity() {
             val bottomSheetDialog = BottomSheetDialog(this)
             bottomSheetDialog.setContentView(bottomSheetView)
 
-            // Initialize buttons here
             editButton = bottomSheetView.findViewById(R.id.editButton)
             deleteButton = bottomSheetView.findViewById(R.id.deleteButton)
 
