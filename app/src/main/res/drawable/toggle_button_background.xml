@@ -1,4 +1,3 @@
-<!-- your_image_background.xml -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Background shape -->
     <item android:drawable="@drawable/custom_background" />

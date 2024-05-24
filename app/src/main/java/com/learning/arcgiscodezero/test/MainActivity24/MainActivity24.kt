@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -16,6 +17,8 @@ import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.Color
 import com.arcgismaps.data.Feature
+import com.arcgismaps.data.FeatureQueryResult
+import com.arcgismaps.data.QueryParameters
 import com.arcgismaps.data.ServiceFeatureTable
 import com.arcgismaps.geometry.Envelope
 import com.arcgismaps.geometry.Point
@@ -30,12 +33,17 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.learning.arcgiscodezero.R
+import com.learning.arcgiscodezero.test.MainActivity24.Repository
+import com.learning.arcgiscodezero.test.MainActivity24.Repository.feature
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class MainActivity24 : AppCompatActivity() {
+class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.ConfirmationListener {
 
     private lateinit var mapView: MapView
     private lateinit var featureAttributesAdapter: FeatureAttributesAdapter
@@ -49,6 +57,7 @@ class MainActivity24 : AppCompatActivity() {
 //    private val serviceFeatureTable = ServiceFeatureTable("https://services1.arcgis.com/4yjifSiIG17X0gW4/arcgis/rest/services/GDP_per_capita_1960_2016/FeatureServer/0")
     private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
 
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +65,7 @@ class MainActivity24 : AppCompatActivity() {
 
         mapView = findViewById(R.id.mapView)
         val toggleButton = findViewById<ToggleButton>(R.id.toggleButton)
+        val searchButton = findViewById<ImageButton>(R.id.searchButton)
 
         featureAttributesAdapter = FeatureAttributesAdapter(emptyList())
 
@@ -64,7 +74,7 @@ class MainActivity24 : AppCompatActivity() {
 
         val map = ArcGISMap(BasemapStyle.ArcGISStreets).apply {
             operationalLayers.add(featureLayer)
-            featureLayer.isVisible = true
+            Repository.featureLayer = featureLayer
         }
 
         mapView.apply {
@@ -102,11 +112,51 @@ class MainActivity24 : AppCompatActivity() {
         toggleButton.setOnCheckedChangeListener { _, isChecked ->
             isAddingFeature = isChecked
         }
+        searchButton.setOnClickListener {
+            featureLayer.clearSelection()
+
+            val queryParameters = QueryParameters().apply {
+                whereClause = ("upper(vrsta) LIKE '%Palma%'")
+            }
+
+            lifecycleScope.launch {
+                val featureQueryResult = serviceFeatureTable.queryFeatures(queryParameters).getOrElse {
+                    showSnackbar("error")
+                } as FeatureQueryResult
+
+                for (feature in featureQueryResult) {
+                    featureLayer.selectFeature(feature)
+                }
+            }
+        }
+
     }
 
     private fun initListeners() {
         editButton.findViewById<Button>(R.id.editButton).setOnClickListener {
             startActivity(Intent(this, EditFeatureActivity::class.java))
+        }
+        deleteButton.findViewById<Button>(R.id.deleteButton).setOnClickListener {
+            val dialog = DeleteConfirmationDialogFragment()
+            dialog.show(supportFragmentManager, "deleteConfirmationDialog")
+        }
+    }
+    override fun onConfirmDelete() {
+        try {
+            lifecycleScope.launch {
+                serviceFeatureTable.deleteFeature(feature!!).apply {
+                    onSuccess {
+                        serviceFeatureTable.applyEdits()
+                    }
+                    onFailure {
+                        val rootView = findViewById<View>(android.R.id.content)
+                        Snackbar.make(rootView, "Failed to update feature", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            val rootView = findViewById<View>(android.R.id.content)
+            Snackbar.make(rootView, "An error occurred", Snackbar.LENGTH_SHORT).show()
         }
     }
 
@@ -143,6 +193,7 @@ class MainActivity24 : AppCompatActivity() {
 
                 if (!geoElements.isEmpty() && geoElements[0] is Feature) {
                     val identifiedFeature = geoElements[0] as Feature
+                    feature = identifiedFeature
                     val featureAttributes = identifiedFeature.attributes
                     val aliasAttributes = mutableMapOf<String, Any?>()
 

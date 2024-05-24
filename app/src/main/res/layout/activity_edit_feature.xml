@@ -166,17 +166,17 @@
 
     </ScrollView>
 
-    <Button
-        android:id="@+id/button"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/button_save"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Button Text"
-        android:layout_alignParentBottom="true"
+        android:layout_height="64dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
+        android:text="Save"
         android:textColor="@android:color/white"
-        android:background="@drawable/button_background"/>
-<!--        android:textAllCaps="false"/>-->
+        app:cornerRadius="8dp"
+        app:iconPadding="8dp"
+        style="@style/Widget.MaterialComponents.Button" />
 
 </LinearLayout>

@@ -5,9 +5,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.arcgismaps.data.Feature
+import com.arcgismaps.data.ServiceFeatureTable
+import com.google.android.material.snackbar.Snackbar
 import com.learning.arcgiscodezero.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EditFeatureActivity : AppCompatActivity() {
     private lateinit var customTextInputEditText: CustomTextInputEditText
@@ -16,10 +24,18 @@ class EditFeatureActivity : AppCompatActivity() {
     private lateinit var customInputTypeObject: CustomTextInputEditText
     private lateinit var customInputSpecies: CustomTextInputEditText
 
+    private lateinit var saveButton: Button
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_feature)
 
+        initView()
+        initListeners()
+
+    }
+
+    private fun initView() {
         customTextInputEditText = findViewById(R.id.editText_tippp)
         customTextInputEditText.setTag("tippp")
         val testOptions = arrayListOf("Option 1", "Option 2", "Option 3")
@@ -39,17 +55,44 @@ class EditFeatureActivity : AppCompatActivity() {
         customInputSpecies.setOptions(options)
         customInputSpecies.setActivityContext(this)
 
-        // Set click listeners for the CustomTextInputEditText fields
-        customInputTypeObject.setOnClickListener { startOptionsListActivity("tippp") }
-        customInputTypeObject.setOnClickListener { startOptionsListActivity("tip") }
-        customInputSpecies.setOnClickListener { startOptionsListActivity("vrsta") }
+        saveButton = findViewById(R.id.button_save)
     }
 
-    private fun startOptionsListActivity(tag: String) {
-        val intent = Intent(this, OptionsListActivity::class.java)
-        // Pass the tag to OptionsListActivity
-        intent.putExtra("tag", tag)
-        startActivityForResult(intent, CustomTextInputEditText.OPTIONS_LIST_REQUEST_CODE)
+    private fun initListeners() {
+
+        saveButton.setOnClickListener {
+            if (customInputSpecies.text.toString() != "") {
+                Repository.feature?.attributes?.set("vrsta", customInputSpecies.text.toString())
+                lifecycleScope.launch {
+                    Repository.feature?.let { feature -> updateFeature(feature) }
+                }
+            }
+        }
+
+    }
+
+    private suspend fun updateFeature(feature: Feature) {
+        val serviceFeatureTable = feature.featureTable as? ServiceFeatureTable
+        if (serviceFeatureTable != null) {
+            try {
+                serviceFeatureTable.updateFeature(feature).apply {
+                    onSuccess {
+                        serviceFeatureTable.applyEdits()
+                        finish()
+                    }
+                    onFailure { error ->
+                        val rootView = findViewById<View>(android.R.id.content)
+                        Snackbar.make(rootView, "Failed to update feature", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                val rootView = findViewById<View>(android.R.id.content)
+                Snackbar.make(rootView, "An error occurred", Snackbar.LENGTH_SHORT).show()
+            }
+        } else {
+            val rootView = findViewById<View>(android.R.id.content)
+            Snackbar.make(rootView, "Invalid feature table", Snackbar.LENGTH_SHORT).show()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
