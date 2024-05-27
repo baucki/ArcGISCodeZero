@@ -9,18 +9,20 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.Color
+import com.arcgismaps.data.CodedValueDomain
 import com.arcgismaps.data.Feature
 import com.arcgismaps.data.FeatureQueryResult
+import com.arcgismaps.data.FieldType
+import com.arcgismaps.data.InheritedDomain
 import com.arcgismaps.data.QueryParameters
+import com.arcgismaps.data.RangeDomain
 import com.arcgismaps.data.ServiceFeatureTable
-import com.arcgismaps.geometry.Envelope
 import com.arcgismaps.geometry.Point
 import com.arcgismaps.geometry.SpatialReference
 import com.arcgismaps.mapping.ArcGISMap
@@ -33,12 +35,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.learning.arcgiscodezero.R
-import com.learning.arcgiscodezero.test.MainActivity24.Repository
 import com.learning.arcgiscodezero.test.MainActivity24.Repository.feature
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -56,7 +59,6 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
     private val serviceFeatureTable = ServiceFeatureTable("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer/0")
 //    private val serviceFeatureTable = ServiceFeatureTable("https://services1.arcgis.com/4yjifSiIG17X0gW4/arcgis/rest/services/GDP_per_capita_1960_2016/FeatureServer/0")
     private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
-
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -130,6 +132,39 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
             }
         }
 
+        lifecycleScope.launch {
+            fetchFeatureLayers("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer", map)
+        }
+    }
+
+    private suspend fun fetchFeatureLayers(serviceUrl: String, map: ArcGISMap) {
+        withContext(Dispatchers.IO) {
+            try {
+                val client = OkHttpClient()
+                val request = Request.Builder().url("$serviceUrl?f=json").build()
+                val response = client.newCall(request).execute()
+                val responseData = response.body?.string()
+
+                if (responseData != null) {
+                    val jsonResponse = JSONObject(responseData)
+                    val layers = jsonResponse.getJSONArray("layers")
+
+                    for (i in 0 until layers.length()) {
+                        val layer = layers.getJSONObject(i)
+                        val layerId = layer.getInt("id")
+                        val layerUrl = "$serviceUrl/$layerId"
+                        val serviceFeatureTable = ServiceFeatureTable(layerUrl)
+                        val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
+                        withContext(Dispatchers.Main) {
+                            map.operationalLayers.add(featureLayer)
+                        }
+                        println(layerUrl)
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun initListeners() {
@@ -199,8 +234,61 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
 
                     val featureTable = identifiedFeature.featureTable as ServiceFeatureTable
                     val fields = featureTable.fields
+                    val types = featureTable.featureTypes
+
+                    Repository.fields = fields
+                    Repository.types = types
+
+                    for (type in types) {
+                        val domains = type.domains
+                        for (domain in domains) {
+                            val domainDetails = when (domain.value) {
+                                is CodedValueDomain -> {
+                                    val codedValues = (domain.value as CodedValueDomain).codedValues.joinToString { it.name }
+                                    "Coded Values: $codedValues"
+                                }
+                                is InheritedDomain -> {
+                                    val codedValues = (domain.value as CodedValueDomain).codedValues.joinToString { it.name }
+                                    "Coded Values: $codedValues"
+                                }
+                                is RangeDomain -> {
+                                    "Range: ${(domain.value as RangeDomain).minValue} - ${(domain.value as RangeDomain).maxValue}"
+                                }
+                                else -> "No domain"
+                            }
+                            println("${type.id}, ${type.name}, ${domain.key}, $domainDetails")
+                        }
+                    }
 
                     for (field in fields) {
+//                        val fieldType = when (field.fieldType) {
+//                            FieldType.Text -> "Text"
+//                            FieldType.Int16 -> "Short"
+//                            FieldType.Int32 -> "Integer"
+//                            FieldType.Int64 -> "Long"
+//                            FieldType.Float32 -> "Float"
+//                            FieldType.Float64 -> "Double"
+//                            FieldType.Date -> "Date"
+//                            FieldType.DateOnly -> "DateOnly"
+//                            FieldType.Oid -> "OID"
+//                            FieldType.Geometry -> "Geometry"
+//                            FieldType.GlobalId -> "GlobalId"
+//                            FieldType.Blob -> "Blob"
+//                            FieldType.Raster -> "Raster"
+//                            FieldType.Guid -> "GUID"
+//                            FieldType.Xml -> "XML"
+//                            else -> "Unknown"
+//                        }
+//                        val domain = field.domain
+//                        val domainDetails = when (domain) {
+//                            is CodedValueDomain -> {
+//                                val codedValues = domain.codedValues.joinToString { it.name }
+//                                "Coded Values: $codedValues"
+//                            }
+//                            is RangeDomain -> "Range: ${domain.minValue} - ${domain.maxValue}"
+//                            else -> "No Domain"
+//                        }
+//                        println("Field Name: ${field.name}, Field Type: $fieldType, Domain: $domainDetails")
                         if (field.alias == "objectid" || field.alias == "globalid") continue
                         val alias = field.alias
                         val attributeName = field.name
@@ -230,6 +318,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                         }
                         val mapPoint = mapView.screenToLocation(screenCoordinate)
                         val attributes = mutableMapOf<String, Any?>(
+                            "tip" to 2.toShort(),
                             "vrsta" to null,
                             "fitopatoloske_promene" to null,
                             "entomoloske_promene" to null,

@@ -68,6 +68,9 @@ dependencies {
     implementation("com.esri:arcgis-maps-kotlin-toolkit-authentication")
 //    implementation("com.esri.arcgisruntime:arcgis-android:100.15.0")
 
+    // okhttp
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+
     // Toolkit dependencies
     implementation(platform("com.esri:arcgis-maps-kotlin-toolkit-bom:200.4.0"))
     implementation("com.esri:arcgis-maps-kotlin-toolkit-geoview-compose")
