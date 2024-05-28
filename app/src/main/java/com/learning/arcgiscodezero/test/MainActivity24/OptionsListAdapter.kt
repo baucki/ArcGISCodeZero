@@ -24,7 +24,7 @@ class OptionsListAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val option = optionsList[position]
+        val option = optionsList[position].trim()
         holder.bind(option)
         holder.itemView.setOnClickListener {
             itemClickListener.onItemClick(option)

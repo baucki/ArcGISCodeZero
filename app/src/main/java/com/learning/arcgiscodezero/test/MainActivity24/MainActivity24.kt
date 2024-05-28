@@ -42,6 +42,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -157,6 +158,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                         val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
                         withContext(Dispatchers.Main) {
                             map.operationalLayers.add(featureLayer)
+                            Repository.featureLayerList.add(featureLayer)
                         }
                         println(layerUrl)
                     }
@@ -218,6 +220,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
         }
     }
     private suspend fun identifyFeature(screenCoordinate: ScreenCoordinate) {
+
         featureLayer.clearSelection()
         val identifyLayerResult =
             mapView.identifyLayer(featureLayer, screenCoordinate, 5.0, false, 1)
@@ -226,7 +229,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
             onSuccess { identifyLayerResult ->
                 val geoElements = identifyLayerResult.geoElements
 
-                if (!geoElements.isEmpty() && geoElements[0] is Feature) {
+                if (geoElements.isNotEmpty() && geoElements[0] is Feature) {
                     val identifiedFeature = geoElements[0] as Feature
                     feature = identifiedFeature
                     val featureAttributes = identifiedFeature.attributes
@@ -261,24 +264,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                     }
 
                     for (field in fields) {
-//                        val fieldType = when (field.fieldType) {
-//                            FieldType.Text -> "Text"
-//                            FieldType.Int16 -> "Short"
-//                            FieldType.Int32 -> "Integer"
-//                            FieldType.Int64 -> "Long"
-//                            FieldType.Float32 -> "Float"
-//                            FieldType.Float64 -> "Double"
-//                            FieldType.Date -> "Date"
-//                            FieldType.DateOnly -> "DateOnly"
-//                            FieldType.Oid -> "OID"
-//                            FieldType.Geometry -> "Geometry"
-//                            FieldType.GlobalId -> "GlobalId"
-//                            FieldType.Blob -> "Blob"
-//                            FieldType.Raster -> "Raster"
-//                            FieldType.Guid -> "GUID"
-//                            FieldType.Xml -> "XML"
-//                            else -> "Unknown"
-//                        }
+
 //                        val domain = field.domain
 //                        val domainDetails = when (domain) {
 //                            is CodedValueDomain -> {
@@ -313,9 +299,6 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                     displayFeatureAttributes(aliasAttributes)
                 } else {
                     if (isAddingFeature) {
-                        lifecycleScope.launch {
-
-                        }
                         val mapPoint = mapView.screenToLocation(screenCoordinate)
                         val attributes = mutableMapOf<String, Any?>(
                             "tip" to 2.toShort(),

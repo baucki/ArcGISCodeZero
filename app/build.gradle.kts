@@ -60,7 +60,7 @@ dependencies {
     // Jetpack Compose dependencies
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.material3:material3")
-    implementation("com.google.android.material:material:1.5.0")
+    implementation("com.google.android.material:material:1.8.0")
     implementation(libs.androidx.recyclerview)
 
     // ArcGIS Map Kotlin SDK dependencies

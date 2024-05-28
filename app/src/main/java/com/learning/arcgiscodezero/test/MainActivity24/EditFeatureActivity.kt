@@ -1,9 +1,12 @@
 package com.learning.arcgiscodezero.test.MainActivity24
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.InputType
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
@@ -26,10 +29,16 @@ import kotlinx.coroutines.withContext
 import android.util.Xml
 import android.view.LayoutInflater
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginTop
+import com.arcgismaps.data.CodedValueDomain
+import com.arcgismaps.data.InheritedDomain
+import com.arcgismaps.data.RangeDomain
 import org.xmlpull.v1.XmlPullParser
 import java.io.StringReader
 
 class EditFeatureActivity : AppCompatActivity() {
+    private lateinit var textInput: TextInputEditText
+    private lateinit var numberInput: TextInputEditText
     private lateinit var customTextInputEditText: CustomTextInputEditText
     private lateinit var customDatePickerEditText: CustomDatePickerEditText
 
@@ -50,6 +59,8 @@ class EditFeatureActivity : AppCompatActivity() {
     }
 
     private fun initView() {
+        textInput = findViewById(R.id.editText_tipp)
+        numberInput = findViewById(R.id.editText_number)
         customTextInputEditText = findViewById(R.id.editText_tippp)
         customTextInputEditText.setTag("tippp")
         val testOptions = arrayListOf("Option 1", "Option 2", "Option 3")
@@ -65,7 +76,7 @@ class EditFeatureActivity : AppCompatActivity() {
         customInputTypeObject.setOptions(options)
         customInputTypeObject.setActivityContext(this)
 
-        customMap.put(customInputTypeObject.getTag()!!, customInputTypeObject)
+        customMap[customInputTypeObject.tag!!] = customInputTypeObject
 
         customInputSpecies = findViewById(R.id.editText_vrsta)
         customInputSpecies.setTag("vrsta")
@@ -73,132 +84,225 @@ class EditFeatureActivity : AppCompatActivity() {
         customInputSpecies.setOptions(options)
         customInputSpecies.setActivityContext(this)
 
-        customMap.put(customInputSpecies.getTag()!!, customInputSpecies)
+        customMap[customInputSpecies.tag!!] = customInputSpecies
 
         val linearLayout = findViewById<LinearLayout>(R.id.linearLayout)
-
-        // Example data
-        val fields = listOf(
-            CustomField("Tip", "text"),
-            CustomField("Number", "number"),
-            CustomField("Custom Tip", "customText"),
-            CustomField("Pick a date", "datePicker")
-        )
-
-        // Dynamically add fields
-        for (field in fields) {
-            val view = createView(field)
-            linearLayout.addView(view)
-        }
+//
+//        val fields = listOf(
+//            CustomField("Tip", "text"),
+//            CustomField("Number", "number"),
+//            CustomField("Custom Tip", "customText"),
+//            CustomField("Pick a date", "datePicker")
+//        )
+//
+//        for (field in fields) {
+//            val view = createView(this, field)
+//            linearLayout.addView(view)
+//        }
 
 
-//        for (field in Repository.fields) {
+        for (field in Repository.fields) {
 //            val editText = EditText(this)
 //            editText.hint = field?.name
 //            linearLayout.addView(editText)
-//        }
+            when (Repository.fieldTypeMap[field?.fieldType]) {
+                "Text" -> {
+                    var codedValues = ""
+                    codedValues = getCodedValues(field!!.name)
+                    if (codedValues != "") {
+                        Repository.codedValuesList = ArrayList(codedValues.split(","))
+                        val view = createView(this, CustomField(field.alias, "customText"))
+                        linearLayout.addView(view)
+                    } else {
+                        val view = createView(this, CustomField(field.alias, "text"))
+                        linearLayout.addView(view)
+                    }
+                }
+                "Short" -> {
+                    val view = createView(this, CustomField(field!!.alias, "number"))
+                    linearLayout.addView(view)
+                }
+                "Double" -> {
+                    val view = createView(this, CustomField(field!!.alias, "decimalNumber"))
+                    linearLayout.addView(view)
+                }
+                "Date" -> {
+                    val view = createView(this, CustomField(field!!.alias, "datePicker"))
+                    linearLayout.addView(view)
+                }
+            }
+        }
 
         saveButton = findViewById(R.id.button_save)
     }
 
-    private fun createViewFromXml(field: CustomField): View {
-        val linearLayout = findViewById<LinearLayout>(R.id.linearLayout)
+    private fun getCodedValues(fieldName: String): String {
+        for (type in Repository.types) {
+            val domains = type?.domains
+            if (domains != null) {
+                for (domain in domains) {
+                    if (domain.key == fieldName) {
+                        val domainDetails = when (domain.value) {
+                            is CodedValueDomain -> {
+                                val codedValues =
+                                    (domain.value as CodedValueDomain).codedValues.joinToString { it.name }
+                                codedValues
+                            }
 
-        val xmlLayout = """
-    <com.google.android.material.textfield.TextInputLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:boxStrokeColor="#CCCCCC"
-        app:boxBackgroundColor="#FFFFFF"
-        app:boxBackgroundMode="outline"
-        app:boxCornerRadiusTopStart="8dp"
-        app:boxCornerRadiusTopEnd="8dp"
-        app:boxCornerRadiusBottomStart="8dp"
-        app:boxCornerRadiusBottomEnd="8dp">
+                            is InheritedDomain -> {
+                                val codedValues =
+                                    (domain.value as CodedValueDomain).codedValues.joinToString { it.name }
+                                codedValues
+                            }
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Hint"
-            android:padding="16dp"
-            android:textSize="16sp"
-            android:drawablePadding="12dp"
-            android:inputType="text" />
-    </com.google.android.material.textfield.TextInputLayout>
-""".trimIndent()
+                            is RangeDomain -> {
+                                "Range: ${(domain.value as RangeDomain).minValue} - ${(domain.value as RangeDomain).maxValue}"
+                            }
 
-        val xml = xmlLayout.replace("android:hint=\"Hint\"", "android:hint=\"${field.name}\"")
-            .replace("android:inputType=\"text\"", "android:inputType=\"${getInputType(field.type)}\"")
-
-        val parser: XmlPullParser = Xml.newPullParser()
-        parser.setInput(StringReader(xml))
-
-        return LayoutInflater.from(this).inflate(parser, linearLayout, false)
-    }
-
-    private fun getInputType(type: String): String {
-        return when (type) {
-            "text" -> "text"
-            "number" -> "number"
-            "customText" -> "text"  // Custom handling may be required
-            "datePicker" -> "none"
-            else -> throw IllegalArgumentException("Unsupported field type")
+                            else -> ""
+                        }
+                        return domainDetails
+                    }
+                }
+            }
         }
+        return ""
     }
 
-    private fun createView(field: CustomField): TextInputLayout {
-        val context = this
+    private fun createView(context: Context, customField: CustomField): TextInputLayout {
         val textInputLayout = TextInputLayout(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            ).apply {
-                setMargins(0, 16, 0, 0)
-                boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
-                boxStrokeColor = Color.argb(255, 204, 204, 204)
-                boxBackgroundColor = Color.WHITE
-                setBoxCornerRadii(8f, 8f, 8f, 8f)
-            }
+            boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
+            boxBackgroundColor = Color.WHITE
+            boxStrokeColor = Color.argb(255,204,204,204)
+            val layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            layoutParams.setMargins(
+                0,
+                this.resources.getDimensionPixelSize(R.dimen.text_input_margin_top),
+                0,
+                0
+            )
+            this.layoutParams = layoutParams
+            setBoxCornerRadii(
+                context.resources.getDimensionPixelSize(R.dimen.box_corner_radius).toFloat(),
+                context.resources.getDimensionPixelSize(R.dimen.box_corner_radius).toFloat(),
+                context.resources.getDimensionPixelSize(R.dimen.box_corner_radius).toFloat(),
+                context.resources.getDimensionPixelSize(R.dimen.box_corner_radius).toFloat()
+            )
         }
 
-        val testOptions = arrayListOf("Option 1", "Option 2", "Option 3")
-
-        val editText = when (field.type) {
-            "text" -> TextInputEditText(context).apply {
-                hint = field.name
-                setPadding(16, 16, 16, 16)
-                textSize = 16f
+        val dynamicInputField  = when(customField.type) {
+            "text" -> {
+                createTextInput(textInputLayout.context, customField.name)
             }
-            "number" -> TextInputEditText(context).apply {
-                hint = field.name
-                setPadding(16, 16, 16, 16)
-                textSize = 16f
-                inputType = android.text.InputType.TYPE_CLASS_NUMBER
+            "number" -> {
+                createNumberInput(textInputLayout.context, customField.name)
             }
-            "customText" -> CustomTextInputEditText(context).apply {
-                hint = field.name
-                setPadding(16, 16, 16, 16)
-                textSize = 16f
-                setOptions(testOptions)
-                setActivityContext(context)
-                setTag(field.name)
-                customMap[field.name] = this
+            "decimalNumber" -> {
+                createDecimalNumberInput(textInputLayout.context, customField.name)
             }
-            "datePicker" -> CustomDatePickerEditText(context).apply {
-                hint = field.name
-                inputType = android.text.InputType.TYPE_NULL
+            "customText" -> {
+                createCustomTextInput(textInputLayout.context, customField.name)
             }
-            else -> throw IllegalArgumentException("Unsupported field type")
+            "datePicker" -> {
+                createCustomDateInput(textInputLayout.context, customField.name)
+            }
+            else -> null
         }
 
-        textInputLayout.addView(editText)
+        if (dynamicInputField != null) textInputLayout.addView(dynamicInputField)
         return textInputLayout
     }
 
+    private fun createCustomDateInput(context: Context, hint: String): CustomDatePickerEditText {
+        val textInputEditText = CustomDatePickerEditText(context).apply {
+            this.hint = hint
+            id = View.generateViewId()
+            setPadding(
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding)
+            )
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setCompoundDrawablePadding(context.resources.getDimensionPixelSize(R.dimen.drawable_padding))
+        }
+
+        return textInputEditText
+    }
+
+    private fun createCustomTextInput(context: Context, hint: String): CustomTextInputEditText {
+        val textInputEditText = CustomTextInputEditText(context).apply {
+            id = View.generateViewId()
+            setPadding(
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding)
+            )
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setCompoundDrawablePadding(context.resources.getDimensionPixelSize(R.dimen.drawable_padding))
+            this.hint = hint
+        }
+        textInputEditText.setOptions(Repository.codedValuesList)
+        textInputEditText.setTag(hint)
+        textInputEditText.setActivityContext(this)
+        customMap[hint] = textInputEditText
+        return textInputEditText
+    }
+
+    private fun createDecimalNumberInput(context: Context, hint: String): TextInputEditText {
+        val textInputEditText = TextInputEditText(context).apply {
+            this.hint = hint
+            id = View.generateViewId()
+            setPadding(
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding)
+            )
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setCompoundDrawablePadding(context.resources.getDimensionPixelSize(R.dimen.drawable_padding))
+        }
+        return textInputEditText
+    }
+
+    private fun createNumberInput(context: Context, hint: String): TextInputEditText {
+        val textInputEditText = TextInputEditText(context).apply {
+            this.hint = hint
+            id = View.generateViewId()
+            setPadding(
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding)
+            )
+            inputType = InputType.TYPE_CLASS_NUMBER
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setCompoundDrawablePadding(context.resources.getDimensionPixelSize(R.dimen.drawable_padding))
+        }
+        return textInputEditText
+    }
+
+    private fun createTextInput(context: Context, hint: String): TextInputEditText {
+        val textInputEditText = TextInputEditText(context).apply {
+            this.hint = hint
+            id = View.generateViewId()
+            setPadding(
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
+                context.resources.getDimensionPixelSize(R.dimen.text_input_padding)
+            )
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            setCompoundDrawablePadding(context.resources.getDimensionPixelSize(R.dimen.drawable_padding))
+        }
+
+        return textInputEditText
+    }
 
     data class CustomField(val name: String, val type: String)
 
