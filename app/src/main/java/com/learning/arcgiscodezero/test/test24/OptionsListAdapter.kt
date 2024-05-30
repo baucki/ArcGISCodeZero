@@ -1,9 +1,8 @@
-package com.learning.arcgiscodezero.test.MainActivity24
+package com.learning.arcgiscodezero.test.test24
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView.OnItemClickListener
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.learning.arcgiscodezero.R

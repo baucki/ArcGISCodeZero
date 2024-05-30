@@ -1,4 +1,4 @@
-package com.learning.arcgiscodezero.test.MainActivity24
+package com.learning.arcgiscodezero.test.test24
 
 import com.arcgismaps.data.Feature
 import com.arcgismaps.data.FeatureType
@@ -12,6 +12,7 @@ object Repository {
 
     var featureLayerList: MutableList<FeatureLayer?> = mutableListOf()
     var codedValuesList: ArrayList<String> = ArrayList()
+    var fieldInfoList: MutableList<FieldInfo> = mutableListOf()
     var fields: List<Field?> = emptyList()
     var types: List<FeatureType?> = emptyList()
     val fieldTypeMap = mapOf(
@@ -31,5 +32,15 @@ object Repository {
         FieldType.Guid to "GUID",
         FieldType.Xml to "XML"
     )
-
+    var typeObject: String = ""
+    var dataTypeObject: String = ""
+    var selectedKey: String = ""
+    var typeObjectNamesMap: MutableMap<Any, String> = mutableMapOf()
+    var typeObjectIdMap: MutableMap<String, Any> = mutableMapOf()
+    data class FieldInfo(
+        val id: Int,
+        val name: String,
+        val value: Any?,
+        val type: String
+    )
 }

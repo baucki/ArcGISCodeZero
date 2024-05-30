@@ -1,6 +1,7 @@
-package com.learning.arcgiscodezero.test.MainActivity24
+package com.learning.arcgiscodezero.test.test24
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,13 +16,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.arcgismaps.ApiKey
 import com.arcgismaps.ArcGISEnvironment
 import com.arcgismaps.Color
-import com.arcgismaps.data.CodedValueDomain
 import com.arcgismaps.data.Feature
 import com.arcgismaps.data.FeatureQueryResult
-import com.arcgismaps.data.FieldType
-import com.arcgismaps.data.InheritedDomain
 import com.arcgismaps.data.QueryParameters
-import com.arcgismaps.data.RangeDomain
 import com.arcgismaps.data.ServiceFeatureTable
 import com.arcgismaps.geometry.Point
 import com.arcgismaps.geometry.SpatialReference
@@ -35,23 +32,22 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.snackbar.Snackbar
 import com.learning.arcgiscodezero.R
-import com.learning.arcgiscodezero.test.MainActivity24.Repository.feature
+import com.learning.arcgiscodezero.test.test24.Repository.feature
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
-import java.io.IOException
 import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
+import java.util.Date
 
 class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.ConfirmationListener {
 
     private lateinit var mapView: MapView
     private lateinit var featureAttributesAdapter: FeatureAttributesAdapter
-
+    private lateinit var bottomSheetDialog: BottomSheetDialog
+    private lateinit var bottomSheetView: View
     private lateinit var editButton: Button
     private lateinit var deleteButton: Button
 
@@ -133,9 +129,9 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
             }
         }
 
-        lifecycleScope.launch {
-            fetchFeatureLayers("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer", map)
-        }
+//        lifecycleScope.launch {
+//            fetchFeatureLayers("http://192.168.1.18:6080/arcgis/rest/services/Servis_SP4_FieldTools/FeatureServer", map)
+//        }
     }
 
     private suspend fun fetchFeatureLayers(serviceUrl: String, map: ArcGISMap) {
@@ -160,7 +156,6 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                             map.operationalLayers.add(featureLayer)
                             Repository.featureLayerList.add(featureLayer)
                         }
-                        println(layerUrl)
                     }
                 }
             } catch (e: Exception) {
@@ -171,7 +166,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
 
     private fun initListeners() {
         editButton.findViewById<Button>(R.id.editButton).setOnClickListener {
-            startActivity(Intent(this, EditFeatureActivity::class.java))
+            startActivityForResult(Intent(this, EditFeatureActivity::class.java), EditFeatureActivity.EDIT_FEATURE_REQUEST_CODE)
         }
         deleteButton.findViewById<Button>(R.id.deleteButton).setOnClickListener {
             val dialog = DeleteConfirmationDialogFragment()
@@ -199,23 +194,24 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
 
     private fun displayFeatureAttributes(featureAttributes: Map<String, Any?>) {
         runOnUiThread {
-            val bottomSheetView = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_attributes, null)
-            val bottomSheetDialog = BottomSheetDialog(this)
-            bottomSheetDialog.setContentView(bottomSheetView)
+            if (!::bottomSheetDialog.isInitialized) {
+                bottomSheetView = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_attributes, null)
+                bottomSheetDialog = BottomSheetDialog(this)
+                bottomSheetDialog.setContentView(bottomSheetView)
 
-            editButton = bottomSheetView.findViewById(R.id.editButton)
-            deleteButton = bottomSheetView.findViewById(R.id.deleteButton)
+                editButton = bottomSheetView.findViewById(R.id.editButton)
+                deleteButton = bottomSheetView.findViewById(R.id.deleteButton)
 
-            initListeners()
+                initListeners()
 
-            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView.parent as View)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheetView.parent as View)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 
-            val recyclerView = bottomSheetView.findViewById<RecyclerView>(R.id.recyclerView)
-            recyclerView.layoutManager = LinearLayoutManager(this)
+                val recyclerView = bottomSheetView.findViewById<RecyclerView>(R.id.recyclerView)
+                recyclerView.layoutManager = LinearLayoutManager(this)
+                recyclerView.adapter = featureAttributesAdapter
+            }
             featureAttributesAdapter.updateData(listOf(featureAttributes))
-            recyclerView.adapter = featureAttributesAdapter
-
             bottomSheetDialog.show()
         }
     }
@@ -241,58 +237,30 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
 
                     Repository.fields = fields
                     Repository.types = types
-
+                    Repository.typeObject = "tip"
+                    Repository.dataTypeObject = "Short"
                     for (type in types) {
-                        val domains = type.domains
-                        for (domain in domains) {
-                            val domainDetails = when (domain.value) {
-                                is CodedValueDomain -> {
-                                    val codedValues = (domain.value as CodedValueDomain).codedValues.joinToString { it.name }
-                                    "Coded Values: $codedValues"
-                                }
-                                is InheritedDomain -> {
-                                    val codedValues = (domain.value as CodedValueDomain).codedValues.joinToString { it.name }
-                                    "Coded Values: $codedValues"
-                                }
-                                is RangeDomain -> {
-                                    "Range: ${(domain.value as RangeDomain).minValue} - ${(domain.value as RangeDomain).maxValue}"
-                                }
-                                else -> "No domain"
-                            }
-                            println("${type.id}, ${type.name}, ${domain.key}, $domainDetails")
-                        }
+                        Repository.typeObjectNamesMap[type.id] = type.name
+                        Repository.typeObjectIdMap[type.name] = type.id
                     }
 
                     for (field in fields) {
-
-//                        val domain = field.domain
-//                        val domainDetails = when (domain) {
-//                            is CodedValueDomain -> {
-//                                val codedValues = domain.codedValues.joinToString { it.name }
-//                                "Coded Values: $codedValues"
-//                            }
-//                            is RangeDomain -> "Range: ${domain.minValue} - ${domain.maxValue}"
-//                            else -> "No Domain"
-//                        }
-//                        println("Field Name: ${field.name}, Field Type: $fieldType, Domain: $domainDetails")
                         if (field.alias == "objectid" || field.alias == "globalid") continue
                         val alias = field.alias
                         val attributeName = field.name
                         val attributeValue = featureAttributes[attributeName]
                         aliasAttributes[alias] = attributeValue
-                        if (attributeValue.toString().contains("java.util.GregorianCalendar")) {
+                        if (Repository.fieldTypeMap[field.fieldType] == "Date" && attributeValue != null) {
                             val dateString = attributeValue.toString()
+                            val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
-                            val startIndex = dateString.indexOf("time=") + "time=".length
-                            val endIndex = dateString.indexOf(",", startIndex)
-                            val timeInMillis = dateString.substring(startIndex, endIndex).toLong()
-
-                            val calendar = Calendar.getInstance()
-                            calendar.timeInMillis = timeInMillis
-
-                            val sdf = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
-                            val formattedDate = sdf.format(calendar.time)
+                            val date: Date = sdf.parse(dateString)
+                            val outputFormat = SimpleDateFormat("d/M/yyyy")
+                            val formattedDate = outputFormat.format(date)
                             aliasAttributes[alias] = formattedDate
+                        }
+                        else if (field.name == Repository.typeObject) {
+                            aliasAttributes[alias] = Repository.typeObjectNamesMap[attributeValue]
                         }
                     }
                     featureLayer.selectFeature(identifiedFeature)
@@ -301,7 +269,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                     if (isAddingFeature) {
                         val mapPoint = mapView.screenToLocation(screenCoordinate)
                         val attributes = mutableMapOf<String, Any?>(
-                            "tip" to 2.toShort(),
+                            "tip" to 1.toShort(),
                             "vrsta" to null,
                             "fitopatoloske_promene" to null,
                             "entomoloske_promene" to null,
@@ -345,7 +313,6 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                                 showSnackbar("Feature added successfully.")
                             }
                             onFailure {
-                                println(it.message)
                                 showSnackbar("Failed to add feature: ${it.message}")
                             }
                         }
@@ -356,6 +323,49 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
             }
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == EditFeatureActivity.EDIT_FEATURE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val updateSuccess = data?.getBooleanExtra("updateSuccess", false) ?: false
+            if (updateSuccess) {
+                showSnackbar("Radi")
+                refreshBottomSheet()
+            }
+        }
+    }
+
+    private fun refreshBottomSheet() {
+        val featureAttributes = Repository.feature!!.attributes
+        val aliasAttributes = mutableMapOf<String, Any?>()
+        for (field in Repository.fields) {
+            if (field!!.alias == "objectid" || field.alias == "globalid") continue
+            val alias = field.alias
+            val attributeName = field.name
+            val attributeValue = featureAttributes[attributeName]
+            aliasAttributes[alias] = attributeValue
+            if (Repository.fieldTypeMap[field.fieldType] == "Date" && attributeValue != null) {
+                val dateString = attributeValue.toString()
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+
+                val date: Date = sdf.parse(dateString)
+                val outputFormat = SimpleDateFormat("d/M/yyyy")
+                val formattedDate = outputFormat.format(date)
+                aliasAttributes[alias] = formattedDate
+            }
+            else if (field.name == Repository.typeObject) {
+                aliasAttributes[alias] = Repository.typeObjectNamesMap[attributeValue]
+            }
+        }
+        updateBottomSheetAttributes(aliasAttributes)
+    }
+
+    private fun updateBottomSheetAttributes(updatedAttributes: Map<String, Any?>) {
+        runOnUiThread {
+            featureAttributesAdapter.updateData(listOf(updatedAttributes))
+        }
+    }
+
     private fun showSnackbar(message: String) {
         Snackbar.make(mapView, message, Snackbar.LENGTH_SHORT).show()
     }

@@ -19,12 +19,12 @@
         android:theme="@style/Theme.ArcGISCodeZero"
         tools:targetApi="31">
         <activity
-            android:name=".test.MainActivity24.OptionsListActivity"
+            android:name=".test.test24.OptionsListActivity"
             android:exported="false"
             android:label="@string/title_activity_edit"
             android:theme="@style/Theme.ArcGISCodeZero" />
         <activity
-            android:name=".test.MainActivity24.EditFeatureActivity"
+            android:name=".test.test24.EditFeatureActivity"
             android:exported="false"
             android:label="@string/title_activity_edit"
             android:theme="@style/Theme.ArcGISCodeZero" />
@@ -48,7 +48,7 @@
         <!-- </activity> -->
         <!-- MainActivity-MainActivity13 -->
         <activity
-            android:name=".test.MainActivity24.MainActivity24"
+            android:name=".test.test24.MainActivity24"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ArcGISCodeZero">

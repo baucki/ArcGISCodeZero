@@ -1,4 +1,4 @@
-package com.learning.arcgiscodezero.test.MainActivity24
+package com.learning.arcgiscodezero.test.test24
 
 import android.view.LayoutInflater
 import android.view.View

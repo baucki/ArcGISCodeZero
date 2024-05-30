@@ -1,4 +1,4 @@
-package com.learning.arcgiscodezero.test.MainActivity24
+package com.learning.arcgiscodezero.test.test24
 
 import android.app.Activity
 import android.content.Intent

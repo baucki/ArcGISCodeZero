@@ -1,4 +1,4 @@
-package com.learning.arcgiscodezero.test.MainActivity24
+package com.learning.arcgiscodezero.test.test24
 
 import android.app.DatePickerDialog
 import android.content.Context
