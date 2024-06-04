@@ -57,7 +57,6 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
 //    private val serviceFeatureTable = ServiceFeatureTable("https://services1.arcgis.com/4yjifSiIG17X0gW4/arcgis/rest/services/GDP_per_capita_1960_2016/FeatureServer/0")
     private val featureLayer = FeatureLayer.createWithFeatureTable(serviceFeatureTable)
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -112,21 +111,28 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
             isAddingFeature = isChecked
         }
         searchButton.setOnClickListener {
-            featureLayer.clearSelection()
+//            featureLayer.clearSelection()
+//            val queryParameters = QueryParameters().apply {
+////                whereClause = ("upper(vrsta) LIKE 'Palma'")
+//                whereClause = ("vreme_sadnje <= timestamp '2024-01-04 00:00:00'") // ne radi
+////                whereClause = ("visina_stabla <= 12") // radi
+////                whereClause = ("tip = 1") // radi
+//            }
+//
+//            lifecycleScope.launch {
+//                try {
+//                    val featureQueryResult = serviceFeatureTable.queryFeatures(queryParameters).getOrThrow() as FeatureQueryResult
+//
+//                    for (feature in featureQueryResult) {
+//                        featureLayer.selectFeature(feature)
+//                    }
+//                } catch (e: Exception) {
+//                    showSnackbar("error: ${e.message}")
+//                    println("error: ${e.message}")
+//                }
+//            }
 
-            val queryParameters = QueryParameters().apply {
-                whereClause = ("upper(vrsta) LIKE '%Palma%'")
-            }
-
-            lifecycleScope.launch {
-                val featureQueryResult = serviceFeatureTable.queryFeatures(queryParameters).getOrElse {
-                    showSnackbar("error")
-                } as FeatureQueryResult
-
-                for (feature in featureQueryResult) {
-                    featureLayer.selectFeature(feature)
-                }
-            }
+            startActivityForResult(Intent(this, SearchActivity::class.java), SearchActivity.SEARCH_FEATURES_REQUEST_CODE)
         }
 
 //        lifecycleScope.launch {
@@ -239,6 +245,7 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                     Repository.types = types
                     Repository.typeObject = "tip"
                     Repository.dataTypeObject = "Short"
+
                     for (type in types) {
                         Repository.typeObjectNamesMap[type.id] = type.name
                         Repository.typeObjectIdMap[type.name] = type.id
@@ -329,9 +336,31 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
         if (requestCode == EditFeatureActivity.EDIT_FEATURE_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
             val updateSuccess = data?.getBooleanExtra("updateSuccess", false) ?: false
             if (updateSuccess) {
-                showSnackbar("Radi")
                 refreshBottomSheet()
             }
+        }
+        if (requestCode == SearchActivity.SEARCH_FEATURES_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
+            val queryString = data?.getStringExtra("queryString") ?: ""
+
+            featureLayer.clearSelection()
+            val queryParameters = QueryParameters().apply {
+                whereClause = queryString
+            }
+
+            lifecycleScope.launch {
+                try {
+                    val featureQueryResult = serviceFeatureTable.queryFeatures(queryParameters).getOrThrow() as FeatureQueryResult
+
+                    for (feature in featureQueryResult) {
+                        featureLayer.selectFeature(feature)
+                    }
+                } catch (e: Exception) {
+                    showSnackbar("error: ${e.message}")
+                    println("error: ${e.message}")
+                }
+            }
+            showSnackbar(queryString)
+            println(queryString)
         }
     }
 
@@ -347,7 +376,6 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
             if (Repository.fieldTypeMap[field.fieldType] == "Date" && attributeValue != null) {
                 val dateString = attributeValue.toString()
                 val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-
                 val date: Date = sdf.parse(dateString)
                 val outputFormat = SimpleDateFormat("d/M/yyyy")
                 val formattedDate = outputFormat.format(date)

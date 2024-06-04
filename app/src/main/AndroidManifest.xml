@@ -28,6 +28,11 @@
             android:exported="false"
             android:label="@string/title_activity_edit"
             android:theme="@style/Theme.ArcGISCodeZero" />
+        <activity
+            android:name=".test.test24.SearchActivity"
+            android:exported="false"
+            android:label="@string/title_activity_edit"
+            android:theme="@style/Theme.ArcGISCodeZero" />
         <!-- <activity -->
         <!-- android:name="com.arcgismaps.toolkit.authentication.OAuthUserSignInActivity" -->
         <!-- android:label="@string/app_name" -->

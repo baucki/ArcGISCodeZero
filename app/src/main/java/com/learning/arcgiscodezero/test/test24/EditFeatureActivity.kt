@@ -11,6 +11,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.arcgismaps.data.CodedValueDomain
 import com.arcgismaps.data.Feature
@@ -57,7 +58,7 @@ class EditFeatureActivity : AppCompatActivity() {
                     arrayList.add(type!!.name)
                 }
                 Repository.codedValuesList = ArrayList(arrayList)
-                view = createView(this, CustomField(field.name, field.alias, "customText"))
+                view = createView(this, Repository.CustomField(field.name, field.alias, "customText"))
             }
             else {
                 when (Repository.fieldTypeMap[field!!.fieldType]) {
@@ -66,19 +67,19 @@ class EditFeatureActivity : AppCompatActivity() {
                         codedValues = getCodedValues(field.name)
                         if (codedValues != "") {
                             Repository.codedValuesList = ArrayList(codedValues.split(","))
-                            view = createView(this, CustomField(field.name, field.alias, "customText"))
+                            view = createView(this, Repository.CustomField(field.name, field.alias, "customText"))
                         } else {
-                            view = createView(this, CustomField(field.name, field.alias, "text"))
+                            view = createView(this, Repository.CustomField(field.name, field.alias, "text"))
                         }
                     }
                     "Short" -> {
-                        view = createView(this, CustomField(field!!.name, field.alias, "number"))
+                        view = createView(this, Repository.CustomField(field!!.name, field.alias, "number"))
                     }
                     "Double" -> {
-                        view = createView(this, CustomField(field!!.name, field.alias, "decimalNumber"))
+                        view = createView(this, Repository.CustomField(field!!.name, field.alias, "decimalNumber"))
                     }
                     "Date" -> {
-                        view = createView(this, CustomField(field!!.name, field.alias, "datePicker"))
+                        view = createView(this, Repository.CustomField(field!!.name, field.alias, "datePicker"))
                     }
                 }
             }
@@ -94,7 +95,6 @@ class EditFeatureActivity : AppCompatActivity() {
         for (type in Repository.types) {
 
             val typeObjectId = if (Repository.selectedKey == ""){
-                println("test")
                 Repository.feature?.attributes?.get(Repository.typeObject)
             } else {
                 Repository.typeObjectIdMap[Repository.selectedKey]
@@ -129,7 +129,7 @@ class EditFeatureActivity : AppCompatActivity() {
         return ""
     }
 
-    private fun createView(context: Context, customField: CustomField): TextInputLayout {
+    private fun createView(context: Context, customField: Repository.CustomField): TextInputLayout {
         val textInputLayout = TextInputLayout(context).apply {
             boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
             boxBackgroundColor = Color.WHITE
@@ -205,6 +205,7 @@ class EditFeatureActivity : AppCompatActivity() {
             )
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
             setCompoundDrawablePadding(context.resources.getDimensionPixelSize(R.dimen.drawable_padding))
+
         }
 
         return textInputEditText
@@ -272,7 +273,7 @@ class EditFeatureActivity : AppCompatActivity() {
         return textInputEditText
     }
 
-    private fun createTextInput(context: Context, name: String, hint: String): TextInputEditText {
+        private fun createTextInput(context: Context, name: String, hint: String): TextInputEditText {
         val textInputEditText = TextInputEditText(context).apply {
             this.hint = hint
             val attributeValue = Repository.feature?.attributes?.get(name)?.toString() ?: ""
@@ -297,9 +298,9 @@ class EditFeatureActivity : AppCompatActivity() {
                 val dynamicInputField = findViewById<TextInputEditText>(fieldInfo.id)
                 if (dynamicInputField.text.toString() != "") {
                     if (Repository.typeObjectNamesMap.containsValue(dynamicInputField.text.toString())) {
-                        for ((k, v) in Repository.typeObjectNamesMap) {
-                            if (v == dynamicInputField.text.toString()) {
-                                val newValue = setDynamicValue(k.toString(), Repository.dataTypeObject)
+                        for ((key, value) in Repository.typeObjectNamesMap) {
+                            if (value == dynamicInputField.text.toString()) {
+                                val newValue = setDynamicValue(key.toString(), Repository.dataTypeObject)
                                 Repository.feature?.attributes?.set(fieldInfo.name, newValue)
                                 break
                             }
@@ -398,7 +399,6 @@ class EditFeatureActivity : AppCompatActivity() {
             if (newCodedValues != "") {
                 val inputField: CustomTextInputEditText? = customMap[field.name]
                 if (inputField != null) {
-                    println(ArrayList(newCodedValues.split(",")))
                     customMap[field.name]!!.setOptions(ArrayList(newCodedValues.split(",")))
                 }
             }
@@ -417,7 +417,6 @@ class EditFeatureActivity : AppCompatActivity() {
         val rootView = findViewById<View>(android.R.id.content)
         rootView.clearFocus()
     }
-    data class CustomField(val name: String, val alias: String, val type: String)
 
     companion object {
         const val EDIT_FEATURE_REQUEST_CODE = 1002

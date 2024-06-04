@@ -32,15 +32,54 @@ object Repository {
         FieldType.Guid to "GUID",
         FieldType.Xml to "XML"
     )
+
+    val typesMap = mapOf(
+        "text" to "Text",
+        "customText" to "Text",
+        "number" to "Short",
+        "datePicker" to "Date",
+        "decimalNumber" to "Double"
+    )
+
     var typeObject: String = ""
     var dataTypeObject: String = ""
     var selectedKey: String = ""
     var typeObjectNamesMap: MutableMap<Any, String> = mutableMapOf()
     var typeObjectIdMap: MutableMap<String, Any> = mutableMapOf()
+
+    val searchFormList: List<CustomField> = listOf(
+        CustomField( "tip", "Tip objekta",  "customText"),
+        CustomField( "vrsta", "Vrsta drveta", "customText"),
+        CustomField( "fitopatoloske_promene", "Fitopataloške promene" , "customText"),
+        CustomField( "entomoloske_promene", "Entomološke promene", "customText"),
+        CustomField( "slomljene_grane", "Slomljene grane",  "customText"),
+        CustomField( "ocena_dekorativnosti", "Ocena dekorativnosti", "number"),
+        CustomField( "procena_starosti",  "Procena starosti", "customText"),
+        CustomField( "vreme_sadnje_od", "Vreme sadnje od", "datePicker"),
+        CustomField( "vreme_sadnje_do", "Vreme sadnje do", "datePicker"),
+        CustomField( "rasadnik", "Rasadnik ",  "text"),
+        CustomField( "visina_stabla_od", "Visina stabla od (m)", "decimalNumber"),
+        CustomField( "visina_stabla_do", "Visina stabla do (m)",  "decimalNumber"),
+        CustomField( "visina_debla_od", "Visina debla od (m)",  "decimalNumber"),
+        CustomField( "visina_debla_do", "Visina debla do (m)",  "decimalNumber"),
+        CustomField( "napomena", "Napomena", "text"),
+    )
+
+    val aliasCustomFieldMap: MutableMap<String, CustomFieldMap> = mutableMapOf()
+
     data class FieldInfo(
         val id: Int,
         val name: String,
         val value: Any?,
+        val type: String
+    )
+    data class CustomField(
+        val name: String,
+        val alias: String,
+        val type: String
+    )
+    data class CustomFieldMap(
+        val name: String,
         val type: String
     )
 }
