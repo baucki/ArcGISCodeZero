@@ -59,7 +59,7 @@ class SearchActivity: AppCompatActivity(){
         for (fieldInForm in Repository.searchFormList) {
             var isCustomText: Boolean
             Repository.aliasCustomFieldMap[fieldInForm.alias] = Repository.CustomFieldMap(fieldInForm.name, fieldInForm.type)
-            if (fieldInForm.type == "customText") {
+            if (fieldInForm.type == "customText" || fieldInForm.type == "number") {
                 isCustomText = true
                 if (fieldInForm.name == Repository.typeObject) {
                     val arrayList: ArrayList<String> = arrayListOf()
@@ -110,7 +110,13 @@ class SearchActivity: AppCompatActivity(){
                             queryString = makeQuery(queryString, query)
                         }
                         "Short" -> {
-
+                            val name = cleanString("${Repository.aliasCustomFieldMap[alias]?.name}")
+                            var queryInput = ""
+                            for (option in Repository.numbersCustomInputFieldList)
+                                if (option.value == input)
+                                    queryInput = option.key.toString()
+                            val query = "$name = $queryInput"
+                            queryString = makeQuery(queryString, query)
                         }
                         "Double" -> {
                             var name = cleanString("${Repository.aliasCustomFieldMap[alias]?.name}")
@@ -138,7 +144,6 @@ class SearchActivity: AppCompatActivity(){
                                 val formattedInput = formatDate(input)
                                 query = "$name <= timestamp '$formattedInput 00:00:00'"
                             }
-                            println(makeQuery(queryString, query))
                             queryString = makeQuery(queryString, query)
                         }
                     }
@@ -252,7 +257,8 @@ class SearchActivity: AppCompatActivity(){
                 createTextInput(textInputLayout.context, customField.name, customField.alias)
             }
             "number" -> {
-                createNumberInput(textInputLayout.context, customField.name, customField.alias)
+//                createNumberInput(textInputLayout.context, customField.name, customField.alias)
+                createCustomTextInput(textInputLayout.context, customField.name, customField.alias)
             }
             "decimalNumber" -> {
                 createDecimalNumberInput(textInputLayout.context, customField.name, customField.alias)

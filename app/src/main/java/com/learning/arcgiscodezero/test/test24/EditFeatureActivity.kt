@@ -62,7 +62,7 @@ class EditFeatureActivity : AppCompatActivity() {
             }
             else {
                 when (Repository.fieldTypeMap[field!!.fieldType]) {
-                    "Text" -> {
+                    "Text", "Short" -> {
                         var codedValues = ""
                         codedValues = getCodedValues(field.name)
                         if (codedValues != "") {
@@ -72,9 +72,13 @@ class EditFeatureActivity : AppCompatActivity() {
                             view = createView(this, Repository.CustomField(field.name, field.alias, "text"))
                         }
                     }
-                    "Short" -> {
-                        view = createView(this, Repository.CustomField(field!!.name, field.alias, "number"))
-                    }
+//                    "Short" -> {
+//                        var codedValues = ""
+//                        codedValues = getCodedValues(field.name)
+//                        Repository.codedValuesList = ArrayList(codedValues.split(","))
+//                        view = createView(this, Repository.CustomField(field.name, field.alias, "customText"))
+//                        view = createView(this, Repository.CustomField(field!!.name, field.alias, "number"))
+//                    }
                     "Double" -> {
                         view = createView(this, Repository.CustomField(field!!.name, field.alias, "decimalNumber"))
                     }
@@ -217,6 +221,12 @@ class EditFeatureActivity : AppCompatActivity() {
             var attributeValue = Repository.feature?.attributes?.get(name)?.toString() ?: ""
             if (name == Repository.typeObject)
                 attributeValue = Repository.typeObjectNamesMap[Repository.feature?.attributes?.get(name)]!!
+            else if (name == "ocena_dekorativnosti" || name == "ocena_kondicije") {
+                for (option in Repository.numbersCustomInputFieldList) {
+                    if (option.key.toString() == attributeValue)
+                        attributeValue = option.value
+                }
+            }
             setText(attributeValue)
             this.hint = hint
             setPadding(
@@ -257,8 +267,13 @@ class EditFeatureActivity : AppCompatActivity() {
     private fun createNumberInput(context: Context, name: String, hint: String): TextInputEditText {
         val textInputEditText = TextInputEditText(context).apply {
             id = View.generateViewId()
-            val attributeValue = Repository.feature?.attributes?.get(name)?.toString() ?: ""
-            setText(attributeValue)
+            val attributeValue = Repository.feature?.attributes?.get(name)?: ""
+            var displayValue = ""
+            for (option in Repository.numbersCustomInputFieldList) {
+                if (option.key == attributeValue)
+                    displayValue = option.value
+            }
+            setText(displayValue)
             this.hint = hint
             setPadding(
                 context.resources.getDimensionPixelSize(R.dimen.text_input_padding),
@@ -292,22 +307,20 @@ class EditFeatureActivity : AppCompatActivity() {
         return textInputEditText
     }
     private fun initListeners() {
-
         saveButton.setOnClickListener {
             for (fieldInfo in Repository.fieldInfoList) {
                 val dynamicInputField = findViewById<TextInputEditText>(fieldInfo.id)
                 if (dynamicInputField.text.toString() != "") {
-                    if (Repository.typeObjectNamesMap.containsValue(dynamicInputField.text.toString())) {
-                        for ((key, value) in Repository.typeObjectNamesMap) {
-                            if (value == dynamicInputField.text.toString()) {
-                                val newValue = setDynamicValue(key.toString(), Repository.dataTypeObject)
-                                Repository.feature?.attributes?.set(fieldInfo.name, newValue)
-                                break
-                            }
+                    Repository.typeObjectNamesMap.entries.firstOrNull { it.value == dynamicInputField.text.toString() }?.let { entry ->
+                        val newValue = setDynamicValue(entry.key.toString(), Repository.dataTypeObject)
+                        Repository.feature?.attributes?.set(fieldInfo.name, newValue)
+                    } ?: run {
+                        Repository.numbersCustomInputFieldList.firstOrNull { option -> option.value == dynamicInputField.text.toString() }?.let { option ->
+                            Repository.feature?.attributes?.set(fieldInfo.name, option.key)
+                        } ?: run {
+                            val value = setDynamicValue(dynamicInputField.text.toString(), fieldInfo.type)
+                            Repository.feature?.attributes?.set(fieldInfo.name, value)
                         }
-                    } else {
-                        val value = setDynamicValue(dynamicInputField.text.toString(), fieldInfo.type)
-                        Repository.feature?.attributes?.set(fieldInfo.name, value)
                     }
                 } else {
                     Repository.feature?.attributes?.set(fieldInfo.name, null)
@@ -317,6 +330,7 @@ class EditFeatureActivity : AppCompatActivity() {
                 Repository.feature?.let { feature -> updateFeature(feature) }
             }
         }
+
     }
 
     private fun setDynamicValue(valueString: String, valueType: String): Any {
@@ -325,7 +339,12 @@ class EditFeatureActivity : AppCompatActivity() {
                 valueString
             }
             "Short" -> {
-                valueString.toShort()
+                var returnValue: Short = 1
+                for (option in Repository.numbersCustomInputFieldList) {
+                    if (option.value == valueString)
+                        returnValue = option.key
+                }
+                returnValue
             }
             "Double" -> {
                 valueString.toDouble()

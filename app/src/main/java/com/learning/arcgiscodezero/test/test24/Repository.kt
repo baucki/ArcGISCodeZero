@@ -64,6 +64,13 @@ object Repository {
         CustomField( "visina_debla_do", "Visina debla do (m)",  "decimalNumber"),
         CustomField( "napomena", "Napomena", "text"),
     )
+    val numbersCustomInputFieldList: List<NumberCustomField> = listOf(
+        NumberCustomField(1, "1- Loše"),
+        NumberCustomField(2, "2- Dovoljno"),
+        NumberCustomField(3, "3- Dobro"),
+        NumberCustomField(4, "4- Vrlo dobro"),
+        NumberCustomField(5, "5- Odlično")
+    )
 
     val aliasCustomFieldMap: MutableMap<String, CustomFieldMap> = mutableMapOf()
 
@@ -81,5 +88,9 @@ object Repository {
     data class CustomFieldMap(
         val name: String,
         val type: String
+    )
+    data class NumberCustomField(
+        val key: Short,
+        val value: String
     )
 }

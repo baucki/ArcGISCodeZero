@@ -269,6 +269,12 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
                         else if (field.name == Repository.typeObject) {
                             aliasAttributes[alias] = Repository.typeObjectNamesMap[attributeValue]
                         }
+                        else if (field.name == "ocena_dekorativnosti" || field.name == "ocena_kondicije") {
+                            for (option in Repository.numbersCustomInputFieldList) {
+                                if (option.key == attributeValue)
+                                    aliasAttributes[alias] = option.value
+                            }
+                        }
                     }
                     featureLayer.selectFeature(identifiedFeature)
                     displayFeatureAttributes(aliasAttributes)
@@ -383,6 +389,12 @@ class MainActivity24 : AppCompatActivity(), DeleteConfirmationDialogFragment.Con
             }
             else if (field.name == Repository.typeObject) {
                 aliasAttributes[alias] = Repository.typeObjectNamesMap[attributeValue]
+            }
+            else if (field.name == "ocena_dekorativnosti" || field.name == "ocena_kondicije") {
+                for (option in Repository.numbersCustomInputFieldList) {
+                    if (option.key == attributeValue)
+                        aliasAttributes[alias] = option.value
+                }
             }
         }
         updateBottomSheetAttributes(aliasAttributes)
